@@ -1,0 +1,42 @@
+server:
+  port: 9080
+  servlet:
+    context-path: /
+
+spring:
+  profiles:
+    active: '@appProfile@'
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    hibernate:
+      ddl-auto: create-drop
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+      
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        
+---
+
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/ejemplowebdb?useSSL=false
+    username: root
+    password: 
+      
+---
+
+spring:
+  profiles: prod
+  datasource:
+    url: jdbc:mysql://10.20.30.40:3306/ejemplowebdb
+    username: root
+    password: 
+    
