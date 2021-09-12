@@ -15,6 +15,8 @@ Requisitos del ejercicio:
   ```
   
   El servicio deberá devolver mensajes claros en caso de error y logar en disco la excepción producida.
+  
+  ![CAPTURA POST img2pdf](/images/DOWNLOAD.JPG)
 
 2) Servicio web en la url 
 ```
