@@ -48,14 +48,22 @@ public class PDFController {
         ObjectMapper Obj = new ObjectMapper();
 		
 		try {
-			pdfInfo = storageService.save(file);
+			if((pdfInfo = storageService.save(file)) == null) {
+				message = "No se ha recibido una imagen";
+				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+			}
+				
 			message = Obj.writeValueAsString(pdfInfo);
 
             return ResponseEntity.status(HttpStatus.OK).body(message);
-		}catch (Exception e) {
+		}catch (IOException e ) {
+			message = "No se ha podido crear el fichero con nombre: " + file.getOriginalFilename();
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+		} catch (Throwable e) {
 			message = "No se ha podido crear el fichero con nombre: " + file.getOriginalFilename();
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
 		}
+		
 	}
 	
 	@GetMapping("files")

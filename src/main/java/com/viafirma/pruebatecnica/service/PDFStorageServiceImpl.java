@@ -25,66 +25,71 @@ import com.viafirma.pruebatecnica.entity.PDFInfo;
 public class PDFStorageServiceImpl implements PDFStorageService{
 
 	private final Path root = Paths.get("uploads");
-	
+
 	@Override
 	public void init() {
 		try {
 			if (!Files.exists(root))
 				Files.createDirectory(root);
-			
+
 		}catch (IOException e) {
 			throw new RuntimeException("No puede inicializar la carpeta Uploads!");
 		}		
 	}
 
 	@Override
-	public PDFInfo save(MultipartFile file) {
-		
+	public PDFInfo save(MultipartFile file) throws Throwable {
+
 		PDFInfo pdfInfo = null;
+
+
+		if (!Files.exists(root))
+			init();
+
+		System.out.println(file.getName());
+		System.out.println(file.getOriginalFilename());
+		System.out.println(file.getContentType());
 		
-		try {
-			if (!Files.exists(root))
-				init();
-			
-			pdfInfo = new PDFInfo(Utils.getFileName(file.getOriginalFilename()), root.toString());
-			String realPath = pdfInfo.getUrl() + "/" + pdfInfo.getIdDocument() + ".pdf";
-			
-			try (PDDocument document = new PDDocument()){
-	        	PDPage page = new PDPage(PDRectangle.A4);
-	        	document.addPage(page);
-	        	
-	        	PDPageContentStream contentStream = new PDPageContentStream(document, page);
+		if (!(file.getOriginalFilename().contains("jpg")) && !(file.getOriginalFilename().contains("png")))
+			return null;
+		
+		pdfInfo = new PDFInfo(Utils.getFileName(file.getOriginalFilename()), root.toString());
+		String realPath = pdfInfo.getUrl() + "/" + pdfInfo.getIdDocument() + ".pdf";
 
-	            // Image
-	            PDImageXObject image = PDImageXObject.createFromByteArray(document, file.getBytes(), pdfInfo.getIdDocument());
-	            //contentStream.drawImage(image, 20, 20, image.getWidth() / 3, image.getHeight() / 3);
-				contentStream.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
-	            
-	            contentStream.close();
+		PDDocument document = new PDDocument();
+		PDPage page = new PDPage(PDRectangle.A4);
+		document.addPage(page);
 
-	            document.save(realPath);
-	            
-	            return pdfInfo;
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("No puede almacenar el fichero. Error: " + e.getMessage());
-		}
+		PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+		// Image
+		PDImageXObject image = PDImageXObject.createFromByteArray(document, file.getBytes(), pdfInfo.getIdDocument());
+		//contentStream.drawImage(image, 20, 20, image.getWidth() / 3, image.getHeight() / 3);
+		contentStream.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
+
+		contentStream.close();
+
+		document.save(realPath);
+
+		return pdfInfo;
+
+
 	}
 
 	@Override
 	public Resource load(String filename) {
 		try {
-		      Path file = root.resolve(filename);
-		      Resource resource = new UrlResource(file.toUri());
+			Path file = root.resolve(filename);
+			Resource resource = new UrlResource(file.toUri());
 
-		      if (resource.exists() || resource.isReadable()) {
-		        return resource;
-		      } else {
-		        throw new RuntimeException("No puede leer el fichero!");
-		      }
-		    } catch (MalformedURLException e) {
-		      throw new RuntimeException("Error: " + e.getMessage());
-		    }
+			if (resource.exists() || resource.isReadable()) {
+				return resource;
+			} else {
+				throw new RuntimeException("No puede leer el fichero!");
+			}
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Error: " + e.getMessage());
+		}
 	}
 
 	@Override

@@ -18,8 +18,9 @@ public interface PDFStorageService {
 	/**
 	 * Almacena fichero en disco
 	 * @param file
+	 * @throws Throwable 
 	 */
-	public PDFInfo save(MultipartFile file);
+	public PDFInfo save(MultipartFile file) throws Throwable;
 	
 	/**
 	 * Lee ficnero de disco
